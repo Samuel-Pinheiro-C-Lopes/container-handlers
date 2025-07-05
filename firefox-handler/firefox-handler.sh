@@ -1,3 +1,14 @@
+#MOUTING PROFILE
+#PROFILE_DIR="$PWD/browser-profile"
+#CONTAINER_PROFILE_DIR="/home/browseruser/.mozilla/firefox"
+#-v "$PROFILE_DIR":"$CONTAINER_PROFILE_DIR":Z	\
+#OPTS
+#-v /tmp/.X11-unix:/tmp/.X11-unix:ro	\
+#-e XDG_SESSION_TYPE=$XDG_SESSION_TYPE   \
+# DBUS
+#-e DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus\
+#-v /etc/machine-id:/etc/machine-id:ro	\
+
 BUILD_DIRECTORY="$(dirname "$(readlink -f $0)")"
 
 CONTAINER_NAME="firefox_local_container"
@@ -41,7 +52,7 @@ case "$1" in
 			--cap-drop=ALL					\
 			--cap-add=CAP_SYS_CHROOT			\
 			--security-opt label=type:container_runtime_t	\
-			--device /dev/dri				\
+			--device /dev/dri/renderD128			\
 			--name $CONTAINER_NAME				\
 			--replace					\
 				-e DISPLAY=$DISPLAY 			\
@@ -49,9 +60,9 @@ case "$1" in
 				-e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR	\
 				-e MOZ_ENABLE_WAYLAND=1			\
 				-e PULSE_SERVER=unix:/run/user/$(id -u)/pulse/native\
-				-v $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:ro,noexec\
-				-v "$DOWNLOADS_DIR":"$CONTAINER_DOWNLOADS_DIR":rw,noexec\
-				-v /run/user/$(id -u)/pulse/native:/run/user/$(id -u)/pulse/native:ro,noexec \
+				-v $XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY:ro,noexec,nosuid,nodev\
+				-v "$DOWNLOADS_DIR":"$CONTAINER_DOWNLOADS_DIR":rw,noexec,nosuid,nodev\
+				-v /run/user/$(id -u)/pulse/native:/run/user/$(id -u)/pulse/native:ro,noexec,nosuid,nodev \
 				"$IMAGE_NAME"
 		if [ $? -eq 0 ]; then
 			echo "Container $CONTAINER_NAME created with success."
